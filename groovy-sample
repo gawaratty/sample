@@ -1,0 +1,38 @@
+import groovy.json.*
+
+def process = 'aws s3api list-objects --bucket ####### --prefix test/ --delimiter / --region ap-northeast-1'.execute()
+def json_str = process.text
+def ret = process.waitFor()
+
+def jsonSlurper = new JsonSlurper()
+def json_obj = jsonSlurper.parseText(json_str)
+
+def list = [];
+
+json_obj['CommonPrefixes'].each {
+  if (it['Prefix'].substring(it['Prefix'].length() - 1, it['Prefix'].length()) == '/') list.add(it['Prefix'])
+}
+
+return list
+
+-----
+
+
+import groovy.json.*
+
+print TEST
+def process = 'aws s3api list-objects --bucket ####### --prefix test/test1/ --delimiter / --region ap-northeast-1'.execute()
+def json_str = process.text
+def ret = process.waitFor()
+
+def jsonSlurper = new JsonSlurper()
+def json_obj = jsonSlurper.parseText(json_str)
+
+def list = [];
+
+json_obj['Contents'].each {
+  if (it['Key'].substring(it['Key'].length() - 1, it['Key'].length()) != '/') list.add(it['Key'])
+}
+list.add(TEST)
+
+return list
